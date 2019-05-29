@@ -4,6 +4,8 @@ import com.bhavyakamboj.springboot2.springboot2jpacrudexample.exception.Resource
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.model.Employee;
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.repository.EmployeeRepository;
 import jdk.management.resource.ResourceRequestDeniedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 public class EmployeeController {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
     @Autowired
     private EmployeeRepository employeeRepository;
 
@@ -29,16 +32,18 @@ public class EmployeeController {
     @GetMapping("/employees")
     public List<Employee> getEmployeeByID(@RequestParam(value = "id",required = false) Long employeeId)throws ResourceNotFoundException {
         if(employeeId==null){
+            logger.info("returned all employees");
             return employeeRepository.findAll();
         }
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee details not found for this id :: "+employeeId));
-
+        logger.debug("returned a single employee");
         return Arrays.asList(employee);
     }
 //@Valid annotation enables the hibernate validation
     @PostMapping("/employees")
     public Employee createEmployee(@Valid @RequestBody Employee employee){
+        logger.info("created an employee");
         return employeeRepository.save(employee);
     }
 
@@ -50,6 +55,7 @@ public class EmployeeController {
         employee.setFirstName(employeeDetails.getFirstName());
         employee.setLastName(employeeDetails.getLastName());
         final Employee updatedEmployee = employeeRepository.save(employee);
+        logger.info("updated an employee");
         return ResponseEntity.ok().body(updatedEmployee);
     }
 
@@ -60,6 +66,7 @@ public class EmployeeController {
         employeeRepository.delete(employee);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
+        logger.info("deleted an employee");
         return response;
     }
 }
