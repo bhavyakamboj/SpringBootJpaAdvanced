@@ -1,5 +1,7 @@
 package com.bhavyakamboj.springboot2.springboot2jpacrudexample.model;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -7,7 +9,8 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="employees")
-public class Employee {
+@EntityListeners(AuditingEntityListener.class)
+public class Employee extends Auditable<String>{
 
     private long id;
 
