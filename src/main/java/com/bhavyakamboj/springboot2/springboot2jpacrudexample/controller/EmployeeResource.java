@@ -6,12 +6,20 @@ import com.bhavyakamboj.springboot2.springboot2jpacrudexample.repository.Employe
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +33,20 @@ public class EmployeeResource {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Path("/health")
+    @HEAD
+    public Response healthStatus(){
+        return Response.ok().header("My header",new HashMap<Integer, String>(){
+            {
+                put(1,"a");
+                put(2,"b");
+                put(3,"c");
+            }
+        }).build();
+    }
+
     @GET
-    @Produces("application/json") //@Produces defines a media-type that the resource method can produce.
+    @Produces(MediaType.APPLICATION_JSON) //@Produces defines a media-type that the resource method can produce.
     @Path("/employees") //@Path is used to identify the URI path (relative) that a resource class or class method will serve requests for
     public List<Employee> getAllEmployees(){
         logger.info("returned all employees");
@@ -34,7 +54,7 @@ public class EmployeeResource {
     }
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/employees/{id}")
     public ResponseEntity<Employee> getEmployeeByID(@PathParam(value = "id") Long employeeId)throws ResourceNotFoundException {
         Employee employee = employeeRepository.findById(employeeId)
@@ -44,8 +64,8 @@ public class EmployeeResource {
     }
 //@Valid annotation enables the hibernate validation
     @POST
-    @Produces("application/json")
-    @Consumes("application/json") //@Consumes defines a media-type that the resource method can accept.
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON) //@Consumes defines a media-type that the resource method can accept.
     @Path("/employees")
     @PostMapping("/employees")
     public Employee createEmployee(@Valid @RequestBody Employee employee){
@@ -54,7 +74,7 @@ public class EmployeeResource {
     }
 
     @PUT
-    @Consumes("application/json")
+    @Consumes({MediaType.APPLICATION_JSON})
     @Path("/employees/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathParam(value = "id") Long employeeId,@Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
         Employee employee = employeeRepository.findById(employeeId)
@@ -69,6 +89,7 @@ public class EmployeeResource {
 
     @DELETE
     @Path("/employees/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Map<String,Boolean> deleteEmployee(@PathParam(value = "id") Long employeeId) throws ResourceNotFoundException{
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(()-> new ResourceNotFoundException("Employee not found for id::" + employeeId));
