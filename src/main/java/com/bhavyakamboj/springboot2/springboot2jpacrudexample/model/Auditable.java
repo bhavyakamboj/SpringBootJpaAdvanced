@@ -1,5 +1,6 @@
 package com.bhavyakamboj.springboot2.springboot2jpacrudexample.model;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,17 +18,21 @@ import java.util.Date;
 public abstract class Auditable<U> {
 
     @CreatedBy
+    @ApiModelProperty(notes = "System generated value for entity creating this resource")
     protected U createdBy;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
+    @ApiModelProperty(notes = "System generated value for date of creation")
     protected Date createdDate;
 
     @LastModifiedBy
+    @ApiModelProperty(notes = "System generated value for entity modifying this resource")
     protected U lastModifiedBy;
 
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
+    @ApiModelProperty(notes = "System generated value for date of last modification")
     protected Date lastModifiedDate;
 
     public U getCreatedBy() {

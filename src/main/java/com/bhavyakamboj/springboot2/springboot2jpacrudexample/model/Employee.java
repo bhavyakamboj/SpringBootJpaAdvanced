@@ -1,5 +1,7 @@
 package com.bhavyakamboj.springboot2.springboot2jpacrudexample.model;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -9,21 +11,26 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="employees")
+@ApiModel(description = "All details about Employee")
 @EntityListeners(AuditingEntityListener.class)
 public class Employee extends Auditable<String>{
 
+    @ApiModelProperty(notes = "The database generated employee ID")
     private long id;
 
     @NotNull
     @Size(min = 6, message="First name should have at least 6 characters")
+    @ApiModelProperty(notes = "Employee's first name")
     private String firstName;
 
     @NotNull
     @Size(min = 6, message = "Last name should have at least 6 characters")
+    @ApiModelProperty(notes = "Employee's last name")
     private String lastName;
 
     @Email
     @NotNull
+    @ApiModelProperty(notes = "Employee's email ID")
     private String emailID;
 
     public Employee(){

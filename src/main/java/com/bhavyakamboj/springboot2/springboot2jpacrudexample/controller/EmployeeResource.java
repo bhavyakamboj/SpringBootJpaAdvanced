@@ -2,6 +2,8 @@ package com.bhavyakamboj.springboot2.springboot2jpacrudexample.controller;
 
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.exception.ResourceNotFoundException;
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.model.Employee;
+import com.bhavyakamboj.springboot2.springboot2jpacrudexample.model.EmployeeList;
+import com.bhavyakamboj.springboot2.springboot2jpacrudexample.model.OperationStatus;
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.repository.EmployeeRepository;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +55,7 @@ public class EmployeeResource {
     @Produces(MediaType.APPLICATION_JSON) //@Produces defines a media-type that the resource method can produce.
     @Path("/employees")//@Path is used to identify the URI path (relative) that a resource class or class method will serve requests for
     @GetMapping("/employees")
-    @ApiOperation(value="View a list of available employees", response = List.class)
+    @ApiOperation(value="View a list of available employees", response = EmployeeList.class)
     @ApiResponses(value = {
             @ApiResponse(code=200, message = "Employees retrieved successfully"),
             @ApiResponse(code=401, message = "You are not authorized"),
@@ -132,7 +135,7 @@ public class EmployeeResource {
     @Path("/employees/{id}")
     @DeleteMapping("/employees/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value="Remove an Employee from the system", response = Map.class)
+    @ApiOperation(value="Remove an Employee from the system", response = OperationStatus.class)
     @ApiResponses(value = {
             @ApiResponse(code=200, message = "Employee removed successfully"),
             @ApiResponse(code=401, message = "You are not authorized to remove the employee"),
@@ -140,14 +143,13 @@ public class EmployeeResource {
             @ApiResponse(code=404, message = "The employee you were trying to remove is not found"),
             @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
     })
-    public Map<String,Boolean> deleteEmployee(@PathParam(value = "id") Long employeeId) throws ResourceNotFoundException{
+    public OperationStatus deleteEmployee(@PathParam(value = "id") Long employeeId) throws ResourceNotFoundException{
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(()-> new ResourceNotFoundException("Employee not found for id::" + employeeId));
         employeeRepository.delete(employee);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("deleted", Boolean.TRUE);
+        OperationStatus status = new OperationStatus("deleted",Boolean.TRUE);
         logger.info("deleted an employee");
-        return response;
+        return status;
     }
 
     @POST
