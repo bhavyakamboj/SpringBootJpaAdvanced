@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -98,5 +99,16 @@ public class EmployeeResource {
         response.put("deleted", Boolean.TRUE);
         logger.info("deleted an employee");
         return response;
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/employees/form")
+//    @PostMapping("/employees/form")
+    public Employee createEmployeeUsingForm(@FormParam("emailID") String emailID, @FormParam("firstName") String firstName, @FormParam("lastName") String lastName){
+        logger.info("created an employee");
+        Employee employee = new Employee(firstName, lastName, emailID);
+        return employeeRepository.save(employee);
     }
 }
