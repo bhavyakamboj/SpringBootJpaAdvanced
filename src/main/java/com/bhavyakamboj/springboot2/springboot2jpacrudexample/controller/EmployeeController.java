@@ -24,17 +24,13 @@ public class EmployeeController {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-//    @GetMapping("/employees")
-//    public List<Employee> getAllEmployees(){
-//        return employeeRepository.findAll();
-//    }
-
     @GetMapping("/employees")
-    public List<Employee> getEmployeeByID(@RequestParam(value = "id",required = false) Long employeeId)throws ResourceNotFoundException {
-        if(employeeId==null){
-            logger.info("returned all employees");
-            return employeeRepository.findAll();
-        }
+    public List<Employee> getAllEmployees(){
+        return employeeRepository.findAll();
+    }
+
+    @GetMapping("/employees/{id}")
+    public List<Employee> getEmployeeByID(@PathVariable(value = "id",required = false) Long employeeId)throws ResourceNotFoundException {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee details not found for this id :: "+employeeId));
         logger.debug("returned a single employee");
@@ -47,8 +43,8 @@ public class EmployeeController {
         return employeeRepository.save(employee);
     }
 
-    @PutMapping("/employees")
-    public ResponseEntity<Employee> updateEmployee(@RequestParam(value = "id") Long employeeId,@Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
+    @PutMapping("/employees/{id}")
+    public ResponseEntity<Employee> updateEmployee(@PathVariable(value = "id") Long employeeId,@Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id::" +employeeId));
         employee.setEmailID(employeeDetails.getEmailID());
@@ -59,8 +55,8 @@ public class EmployeeController {
         return ResponseEntity.ok().body(updatedEmployee);
     }
 
-    @DeleteMapping("/employees")
-    public Map<String,Boolean> deleteEmployee(@RequestParam(value = "id") Long employeeId, @Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException{
+    @DeleteMapping("/employees/{id}")
+    public Map<String,Boolean> deleteEmployee(@PathVariable(value = "id") Long employeeId) throws ResourceNotFoundException{
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(()-> new ResourceNotFoundException("Employee not found for id::" + employeeId));
         employeeRepository.delete(employee);
