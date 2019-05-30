@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@RestController
 @Path("/api/v1")
 @Api(value="Employee Management System", description = "Operations pertaining to manage employees")
 public class EmployeeResource {
@@ -30,6 +30,7 @@ public class EmployeeResource {
     private EmployeeRepository employeeRepository;
 
     @Path("/health")
+    @RequestMapping(method = RequestMethod.HEAD,path = "/health")
     @HEAD
     @ApiOperation(value="View the health status of api", response = Response.class)
     @ApiResponses(value = {
@@ -49,7 +50,8 @@ public class EmployeeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON) //@Produces defines a media-type that the resource method can produce.
-    @Path("/employees") //@Path is used to identify the URI path (relative) that a resource class or class method will serve requests for
+    @Path("/employees")//@Path is used to identify the URI path (relative) that a resource class or class method will serve requests for
+    @GetMapping("/employees")
     @ApiOperation(value="View a list of available employees", response = List.class)
     @ApiResponses(value = {
             @ApiResponse(code=200, message = "Employees retrieved successfully"),
@@ -66,7 +68,8 @@ public class EmployeeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/employees/{id}")
-    @ApiOperation(value="View a particular Employee", response = ResponseEntity.class)
+    @GetMapping("/employees/{id}")
+    @ApiOperation(value="View a particular Employee", response = Employee.class)
     @ApiResponses(value = {
             @ApiResponse(code=200, message = "Employee retrieved successfully"),
             @ApiResponse(code=401, message = "You are not authorized"),
@@ -103,6 +106,7 @@ public class EmployeeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/employees/{id}")
+    @PutMapping("/employees/{id}")
     @ApiOperation(value="Update the details of an employee")
     @ApiResponses(value = {
             @ApiResponse(code=200, message = "Employee retrieved successfully"),
@@ -126,6 +130,7 @@ public class EmployeeResource {
 
     @DELETE
     @Path("/employees/{id}")
+    @DeleteMapping("/employees/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value="Remove an Employee from the system", response = Map.class)
     @ApiResponses(value = {
@@ -149,6 +154,7 @@ public class EmployeeResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/employees/form")
+    @PostMapping("/employees/form")
     @ApiOperation(value="Add a new employee using web form", response = Employee.class)
     @ApiResponses(value = {
             @ApiResponse(code=200, message = "Employee added successfully using form"),
