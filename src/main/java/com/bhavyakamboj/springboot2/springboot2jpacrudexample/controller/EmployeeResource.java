@@ -3,30 +3,25 @@ package com.bhavyakamboj.springboot2.springboot2jpacrudexample.controller;
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.exception.ResourceNotFoundException;
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.model.Employee;
 import com.bhavyakamboj.springboot2.springboot2jpacrudexample.repository.EmployeeRepository;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
 @Path("/api/v1")
+@Api(value="Employee Management System", description = "Operations pertaining to manage employees")
 public class EmployeeResource {
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeResource.class);
@@ -36,9 +31,15 @@ public class EmployeeResource {
 
     @Path("/health")
     @HEAD
+    @ApiOperation(value="View the health status of api", response = Response.class)
+    @ApiResponses(value = {
+            @ApiResponse(code=200, message = "API is in good health"),
+            @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
+    })
     public Response healthStatus(){
         return Response.ok().header("My header",new HashMap<Integer, String>(){
             {
+                put(0,"test data");
                 put(1,"a");
                 put(2,"b");
                 put(3,"c");
@@ -49,6 +50,14 @@ public class EmployeeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON) //@Produces defines a media-type that the resource method can produce.
     @Path("/employees") //@Path is used to identify the URI path (relative) that a resource class or class method will serve requests for
+    @ApiOperation(value="View a list of available employees", response = List.class)
+    @ApiResponses(value = {
+            @ApiResponse(code=200, message = "Employees retrieved successfully"),
+            @ApiResponse(code=401, message = "You are not authorized"),
+            @ApiResponse(code=403, message = "Accessing the employee you were trying to reach is forbidden"),
+            @ApiResponse(code=404, message = "The employee you were trying to reach is not found"),
+            @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
+    })
     public List<Employee> getAllEmployees(){
         logger.info("returned all employees");
         return employeeRepository.findAll();
@@ -57,6 +66,14 @@ public class EmployeeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/employees/{id}")
+    @ApiOperation(value="View a particular Employee", response = ResponseEntity.class)
+    @ApiResponses(value = {
+            @ApiResponse(code=200, message = "Employee retrieved successfully"),
+            @ApiResponse(code=401, message = "You are not authorized"),
+            @ApiResponse(code=403, message = "Accessing the employee you were trying to reach is forbidden"),
+            @ApiResponse(code=404, message = "The employee you were trying to reach is not found"),
+            @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
+    })
     public ResponseEntity<Employee> getEmployeeByID(@PathParam(value = "id") Long employeeId)throws ResourceNotFoundException {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee details not found for this id :: "+employeeId));
@@ -69,15 +86,34 @@ public class EmployeeResource {
     @Consumes(MediaType.APPLICATION_JSON) //@Consumes defines a media-type that the resource method can accept.
     @Path("/employees")
     @PostMapping("/employees")
-    public Employee createEmployee(@Valid @RequestBody Employee employee){
+    @ApiOperation(value="Add a new Employee", response = Employee.class)
+    @ApiResponses(value = {
+            @ApiResponse(code=200, message = "Employee added successfully"),
+            @ApiResponse(code=401, message = "You are not authorized"),
+            @ApiResponse(code=403, message = "Adding the employee is forbidden"),
+            @ApiResponse(code=404, message = "The employee you were trying to add is not found"),
+            @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
+    })
+    public Employee createEmployee(@ApiParam(value="Employee object stored in database table", required=true) @Valid @RequestBody Employee employee){
         logger.info("created an employee");
         return employeeRepository.save(employee);
     }
 
     @PUT
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/employees/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathParam(value = "id") Long employeeId,@Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
+    @ApiOperation(value="Update the details of an employee")
+    @ApiResponses(value = {
+            @ApiResponse(code=200, message = "Employee retrieved successfully"),
+            @ApiResponse(code=401, message = "You are not authorized"),
+            @ApiResponse(code=403, message = "Updating the employee you were trying to reach is forbidden"),
+            @ApiResponse(code=404, message = "The employee you were trying to update is not found"),
+            @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
+    })
+    public ResponseEntity<Employee> updateEmployee(@PathParam(value = "id") Long employeeId,
+            @Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
+
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id::" +employeeId));
         employee.setEmailID(employeeDetails.getEmailID());
@@ -91,6 +127,14 @@ public class EmployeeResource {
     @DELETE
     @Path("/employees/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value="Remove an Employee from the system", response = Map.class)
+    @ApiResponses(value = {
+            @ApiResponse(code=200, message = "Employee removed successfully"),
+            @ApiResponse(code=401, message = "You are not authorized to remove the employee"),
+            @ApiResponse(code=403, message = "Accessing the employee you were trying to reach is forbidden"),
+            @ApiResponse(code=404, message = "The employee you were trying to remove is not found"),
+            @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
+    })
     public Map<String,Boolean> deleteEmployee(@PathParam(value = "id") Long employeeId) throws ResourceNotFoundException{
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(()-> new ResourceNotFoundException("Employee not found for id::" + employeeId));
@@ -105,7 +149,14 @@ public class EmployeeResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/employees/form")
-//    @PostMapping("/employees/form")
+    @ApiOperation(value="Add a new employee using web form", response = Employee.class)
+    @ApiResponses(value = {
+            @ApiResponse(code=200, message = "Employee added successfully using form"),
+            @ApiResponse(code=401, message = "You are not authorized"),
+            @ApiResponse(code=403, message = "Adding the employee is forbidden"),
+            @ApiResponse(code=404, message = "The employee you were trying to add using form is not found"),
+            @ApiResponse(code=500, message = "The server is facing problems currently. Please try later.")
+    })
     public Employee createEmployeeUsingForm(@FormParam("emailID") String emailID, @FormParam("firstName") String firstName, @FormParam("lastName") String lastName){
         logger.info("created an employee");
         Employee employee = new Employee(firstName, lastName, emailID);
