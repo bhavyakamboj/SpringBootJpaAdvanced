@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 public class Employee extends Auditable<String>{
 
     @ApiModelProperty(notes = "The database generated employee ID")
-    private long id;
+    private Long id;
 
     @NotNull
     @Size(min = 6, message="First name should have at least 6 characters")
@@ -45,11 +45,11 @@ public class Employee extends Auditable<String>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

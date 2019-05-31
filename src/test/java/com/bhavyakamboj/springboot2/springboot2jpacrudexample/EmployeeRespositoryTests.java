@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,11 +18,14 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 //@Transactional(propagation = Propagation.NOT_SUPPORTED) //by default JPA tests are transactional, use this to disable transaction management for a test/whole class
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE) //to test against the actual registered database instead of in-memory datasoure
+//@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE) //to test against the actual registered database instead of in-memory datasoure
 public class EmployeeRespositoryTests {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     public void testSaveEmployee(){
@@ -57,5 +61,16 @@ public class EmployeeRespositoryTests {
         createdEmployee.setLastName("Employee2");
         Employee updatedEmployee = employeeRepository.save(createdEmployee);
         assertEquals(updatedEmployee,createdEmployee);
+    }
+
+    @Test
+    public void testSaveEmployeeUsingEntityManager(){
+        Employee employee = new Employee("admin123","admin123","admin@admin.com");
+        Long id = entityManager.persistAndGetId(employee,Long.class);
+        assertNotNull(id);
+        Employee otherEmployee = employeeRepository.findByFirstName("admin123");
+        assertNotNull(otherEmployee);
+        assertEquals(otherEmployee.getFirstName(),employee.getFirstName());
+        assertEquals(otherEmployee.getLastName(), employee.getLastName());
     }
 }
