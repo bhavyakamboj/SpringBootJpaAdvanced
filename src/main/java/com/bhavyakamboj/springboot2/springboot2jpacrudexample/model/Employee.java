@@ -89,4 +89,26 @@ public class Employee extends Auditable<String>{
                 ", emailID='" + emailID + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Employee employee = (Employee) o;
+
+        if (id != employee.id) return false;
+        if (!firstName.equals(employee.firstName)) return false;
+        if (!lastName.equals(employee.lastName)) return false;
+        return emailID.equals(employee.emailID);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + firstName.hashCode();
+        result = 31 * result + lastName.hashCode();
+        result = 31 * result + emailID.hashCode();
+        return result;
+    }
 }
